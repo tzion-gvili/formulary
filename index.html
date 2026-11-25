@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#151040">
+  <title>נוסחאון על – מתמטיקה, פיזיקה ואווירונאוטיקה</title>
+  <link rel="preconnect" href="https://googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg1: #0e1233; --bg2: #1d1152;
+      --card: rgba(255, 255, 255, 0.07); --card2: rgba(255, 255, 255, 0.12);
+      --line: rgba(255, 255, 255, 0.15); --text: #f3f5ff; --muted: #aab2e0;
+      --accent: #ffd166; --good: #2ee59d; --bad: #ff5c7a; --blue: #4cc9f0;
+      --c: #ffd166; --radius: 20px; --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: 'Rubik', 'Segoe UI', Arial, sans-serif; color: var(--text);
+      background: radial-gradient(1100px 600px at 85% -10%, #3b1c92 0%, transparent 60%),
+        radial-gradient(900px 500px at -10% 110%, #08607f 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      background-attachment: fixed; overflow-x: hidden;
+    }
+    .bg-grid {
+      position: fixed; inset: 0; pointer-events: none; opacity: 0.06;
+      background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at 50% 30%, #000, transparent 75%);
+    }
+    button { font-family: inherit; cursor: pointer; border: none; color: inherit; background: none; }
+    .ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 18px; background: rgba(10, 12, 40, 0.72);
+      backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: baseline; gap: 8px; font-size: 22px; font-weight: 900; }
+    .brand-bolt { display: inline-block; animation: wiggle 3s ease-in-out infinite; }
+    .brand-name { background: linear-gradient(90deg, #ffd166, #ff7eb3); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .brand small { font-size: 14px; font-weight: 500; color: var(--muted); }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .star-total { background: var(--card); border: 1px solid var(--line); padding: 7px 14px; border-radius: 999px; font-weight: 700; transition: transform .15s; }
+    .star-total:hover { transform: scale(1.05); border-color: var(--accent); }
+    .icon-btn { background: var(--card); border: 1px solid var(--line); width: 42px; height: 42px; border-radius: 50%; font-size: 20px; transition: transform .15s; }
+    .icon-btn:hover { transform: scale(1.1); }
+    main { max-width: 1100px; margin: 0 auto; padding: 22px 16px 50px; position: relative; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 20px; border-radius: 999px; font-size: 16px; font-weight: 700; color: #2a1700;
+      background: linear-gradient(180deg, #ffe08a, #ffb703); box-shadow: 0 5px 0 #c27c00, 0 10px 20px rgba(0, 0, 0, 0.3);
+      transition: transform .1s, filter .15s;
+    }
+    .btn:hover { filter: brightness(1.07); }
+    .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #c27c00; }
+    .btn.secondary { color: var(--text); background: var(--card2); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35); border: 1px solid var(--line); }
+    .btn.small { padding: 8px 14px; font-size: 14px; }
+    .chip { background: var(--card2); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; font-weight: 700; white-space: nowrap; font-size: 14px; }
+    .hero { display: flex; align-items: center; gap: 22px; margin: 6px 0 22px; }
+    .mascot { font-size: 74px; cursor: pointer; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); user-select: none; }
+    .bubble { position: relative; background: #fff; color: #23214a; padding: 16px 20px; border-radius: 20px; font-size: 17px; font-weight: 500; box-shadow: var(--shadow); max-width: 620px; line-height: 1.5; }
+    .bubble::after { content: ''; position: absolute; right: -18px; top: 22px; border: 10px solid transparent; border-left-color: #fff; }
+    .search-bar { display: flex; gap: 10px; margin-bottom: 26px; }
+    .search-bar input {
+      flex: 1; padding: 14px 20px; border-radius: 999px; font: 500 17px 'Rubik', sans-serif;
+      background: var(--card2); color: #fff; border: 2px solid var(--line); outline: none; box-shadow: var(--shadow);
+    }
+    .search-bar input:focus { border-color: var(--accent); }
+    .cat { margin-bottom: 30px; }
+    .cat-title { display: flex; align-items: center; gap: 10px; font-size: 22px; margin: 0 0 14px; }
+    .cat-title span { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: color-mix(in srgb, var(--c) 30%, transparent); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .card {
+      text-align: right; display: flex; gap: 14px; align-items: flex-start; padding: 18px; border-radius: var(--radius);
+      background: linear-gradient(160deg, color-mix(in srgb, var(--c) 18%, transparent), var(--card));
+      border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .2s, border-color .2s; animation: rise .45s both;
+    }
+    .card:hover { transform: translateY(-5px) scale(1.01); border-color: var(--c); }
+    .card-icon { font-size: 38px; line-height: 1; transition: transform .3s; }
+    .card:hover .card-icon { transform: rotate(-10deg) scale(1.15); }
+    .card h3 { margin: 0 0 6px; font-size: 18px; }
+    .card p { margin: 0 0 12px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .card-body { flex: 1; }
+    .game-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+    .game-title { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 10px; flex: 1; }
+    .gicon { font-size: 32px; }
+    .topic-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .tab-btn { padding: 8px 16px; border-radius: 999px; font-weight: 700; font-size: 15px; background: var(--card); border: 1px solid var(--line); color: var(--muted); transition: all .15s; }
+    .tab-btn:hover { border-color: var(--c); color: #fff; }
+    .tab-btn.active { background: var(--c); color: #120d2b; border-color: var(--c); }
+    .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .f-card {
+      display: flex; flex-direction: column; justify-content: space-between; padding: 18px; border-radius: var(--radius);
+      background: linear-gradient(170deg, color-mix(in srgb, var(--c) 14%, rgba(20, 18, 60, 0.85)), rgba(14, 13, 45, 0.92));
+      border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line)); box-shadow: var(--shadow); animation: rise .35s both; transition: transform .15s, border-color .2s;
+    }
+    .f-card:hover { transform: translateY(-3px); border-color: var(--c); }
+    .f-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+    .f-title { font-size: 17px; font-weight: 700; color: #fff; }
+    .f-tag { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.1); color: var(--muted); white-space: nowrap; }
+    .f-box {
+      direction: ltr; text-align: center; background: #090821; border: 2px solid color-mix(in srgb, var(--c) 50%, #2b2f6b);
+      border-radius: 14px; padding: 14px 12px; margin: 6px 0 12px; font-family: 'Cambria Math', Consolas, monospace;
+      font-size: 22px; font-weight: 700; color: #ffe08a; overflow-x: auto;
+    }
+    .frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-size: 0.85em; margin: 0 3px; }
+    .frac > span:first-child { border-bottom: 1.5px solid #ffe08a; padding: 0 4px 2px; }
+    .frac > span:last-child { padding: 2px 4px 0; }
+    .f-desc { font-size: 15px; line-height: 1.55; color: #dfe3ff; margin-bottom: 10px; }
+    .f-vars { font-size: 13.5px; color: var(--muted); background: rgba(0,0,0,.25); padding: 8px 12px; border-radius: 12px; line-height: 1.5; }
+    .f-vars b { color: var(--blue); direction: ltr; display: inline-block; }
+    .f-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.08); }
+    .star-btn { font-size: 14px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid var(--line); color: var(--muted); }
+    .star-btn.on { background: rgba(255, 209, 102, 0.2); border-color: var(--accent); color: var(--accent); }
+    .copy-btn { font-size: 13px; color: var(--muted); padding: 4px 10px; border-radius: 8px; }
+    .copy-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .toast {
+      position: fixed; top: 74px; left: 50%; z-index: 50; transform: translate(-50%, -30px); opacity: 0; pointer-events: none;
+      padding: 10px 22px; border-radius: 999px; font-size: 16px; font-weight: 700; background: #2b2f6b;
+      border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .3s cubic-bezier(.2,1.6,.4,1), opacity .25s;
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .toast.good { background: linear-gradient(90deg, #0f8a5f, #18b87c); }
+    #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 60; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes wiggle { 0%, 90%, 100% { transform: rotate(0); } 93% { transform: rotate(-15deg); } 96% { transform: rotate(15deg); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes popAnim { 0% { transform: scale(1); } 40% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .pop { animation: popAnim .35s ease; }
+    @media (max-width: 640px) {
+      .brand small { display: none; } .hero { flex-direction: column; text-align: center; }
+      .bubble::after { display: none; } .formula-grid { grid-template-columns: 1fr; } .f-box { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <header class="topbar">
+    <button id="homeBtn" class="brand" title="לתפריט הראשי">
+      <span class="brand-bolt">🚀</span>
+      <span class="brand-name">נוסחאון על</span>
+      <small>מתמטיקה · פיזיקה · אווירונאוטיקה (3, 4, 5 יח״ל ותואר ראשון)</small>
+    </button>
+    <div class="top-actions">
+      <button id="favFilterBtn" class="star-total" title="הנוסחאות שסימנת בכוכב">⭐ <span id="starTotal">0</span></button>
+      <button id="muteBtn" class="icon-btn" title="צליל">🔊</button>
+    </div>
+  </header>
+  <main id="app"></main>
+  <canvas id="fx"></canvas>
+  <div id="toast" class="toast"></div>
+  <script>
+  'use strict';
+  const Sound = {
+    ctx: null, master: null, muted: localStorage.getItem('form_muted') === '1',
+    init() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        this.ctx = new AC();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = this.muted ? 0 : 1;
+        this.master.connect(this.ctx.destination);
+      }
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return this.ctx;
+    },
+    setMuted(m) {
+      this.muted = m;
+      localStorage.setItem('form_muted', m ? '1' : '0');
+      if (this.master) this.master.gain.setTargetAtTime(m ? 0 : 1, this.ctx.currentTime, 0.02);
+    },
+    tone(freq, dur = 0.15, opt = {}) {
+      const c = this.init();
+      if (!c || this.muted) return;
+      const { type = 'sine', vol = 0.2, delay = 0, slide = 0 } = opt;
+      const t = c.currentTime + delay, osc = c.createOscillator(), g = c.createGain();
+      osc.type = type; osc.frequency.setValueAtTime(freq, t);
+      if (slide) osc.frequency.exponentialRampToValueAtTime(slide, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g); g.connect(this.master);
+      osc.start(t); osc.stop(t + dur + 0.05);
+    },
+    click() { this.tone(700, 0.06, { type: 'triangle', vol: 0.12 }); },
+    pop() { this.tone(420, 0.12, { vol: 0.16, slide: 900 }); },
+    star() { [523.25, 659.25, 783.99].forEach((f, i) => this.tone(f, 0.18, { type: 'triangle', vol: 0.15, delay: i * 0.06 })); },
+    unstar() { this.tone(330, 0.2, { vol: 0.12, slide: 210 }); }
+  };
+
+  const FX = {
+    canvas: null, ctx: null, parts: [], running: false,
+    colors: ['#ffd166', '#ef476f', '#06d6a0', '#4cc9f0', '#9b5de5', '#ff9f1c', '#ffffff'],
+    init() {
+      this.canvas = document.getElementById('fx');
+      this.ctx = this.canvas.getContext('2d');
+      const resize = () => { this.canvas.width = innerWidth * devicePixelRatio; this.canvas.height = innerHeight * devicePixelRatio; };
+      resize(); addEventListener('resize', resize);
+    },
+    burstAt(el) {
+      if (!el) return;
+      const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      for (let i = 0; i < 20; i++) {
+        const a = Math.random() * Math.PI * 2, s = 6 * (0.4 + Math.random() * 0.8);
+        this.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 3, size: 5 + Math.random() * 5,
+          color: this.colors[Math.floor(Math.random() * this.colors.length)], rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, life: 45 + Math.random() * 20 });
+      }
+      if (!this.running) { this.running = true; requestAnimationFrame(() => this.loop()); }
+    },
+    loop() {
+      const c = this.ctx, dpr = devicePixelRatio;
+      c.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.parts = this.parts.filter(p => p.life-- > 0);
+      for (const p of this.parts) {
+        p.vy += 0.28; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        c.save(); c.translate(p.x * dpr, p.y * dpr); c.rotate(p.rot);
+        c.globalAlpha = Math.min(1, p.life / 25); c.fillStyle = p.color;
+        const s = p.size * dpr; c.fillRect(-s / 2, -s / 4, s, s / 2); c.restore();
+      }
+      if (this.parts.length) requestAnimationFrame(() => this.loop());
+      else { this.running = false; c.clearRect(0, 0, this.canvas.width, this.canvas.height); }
+    },
+    pop(el) { if (!el) return; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); },
+    toast(msg, kind = 'info') {
+      const t = document.getElementById('toast');
+      t.className = 'toast ' + kind; t.innerHTML = msg; this.pop(t); t.classList.add('show');
+      clearTimeout(this._tt); this._tt = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+  };
+  const frac = (a, b) => `<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+  const DATA = [
+    {
+      id: 'math_3', cat: 'math', icon: '📐', title: 'מתמטיקה – 3 יח״ל',
+      desc: 'קו ישר, פרבולה, טריגו במשולש ישר זווית, סדרות וגידול/דעיכה.',
+      items: [
+        { id: 'm3_1', topic: 'אלגברה', title: 'נוסחת השורשים (משוואה ריבועית)',
+          f: `x<sub>1,2</sub> = ${frac('−b ± √(b² − 4ac)', '2a')}`, plain: 'x = (-b ± √(b² - 4ac)) / 2a',
+          desc: 'מוצאת את נקודות החיתוך של פרבולה עם ציר X (פתרון משוואה מהצורה ax² + bx + c = 0).',
+          vars: '<b>a, b, c</b> מקדמי המשוואה. אם הביטוי בשורש שלילי – אין פתרון.' },
+        { id: 'm3_2', topic: 'אלגברה', title: 'קודקוד הפרבולה',
+          f: `x<sub>קודקוד</sub> = ${frac('−b', '2a')}`, plain: 'x_v = -b / 2a',
+          desc: 'מוצאת את נקודת המקסימום או המינימום של הפרבולה. את ה-Y מוצאים ע״י הצבת ה-X בפונקציה.',
+          vars: '<b>a > 0</b> פרבולה "מחייכת" (מינימום). <b>a < 0</b> פרבולה "בוכה" (מקסימום).' },
+        { id: 'm3_3', topic: 'גיאומטריה אנליטית', title: 'שיפוע ומשוואת ישר',
+          f: `m = ${frac('y₂ − y₁', 'x₂ − x₁')} &nbsp;|&nbsp; y − y₁ = m(x − x₁)`, plain: 'm = (y2 - y1)/(x2 - x1)',
+          desc: 'חישוב שיפוע בין שתי נקודות ובניית משוואת קו ישר.',
+          vars: '<b>m</b> שיפוע. מקבילים: <b>m₁ = m₂</b>. מאונכים: <b>m₁ · m₂ = −1</b>.' },
+        { id: 'm3_4', topic: 'גיאומטריה אנליטית', title: 'מרחק בין שתי נקודות ואמצע קטע',
+          f: `d = √((x₂ − x₁)² + (y₂ − y₁)²) &nbsp;|&nbsp; M = (${frac('x₁+x₂', '2')}, ${frac('y₁+y₂', '2')})`, plain: 'd = √((x2-x1)² + (y2-y1)²)',
+          desc: 'חישוב אורך קטע במישור ומציאת נקודת האמצע שלו.',
+          vars: '<b>d</b> מרחק, <b>M</b> נקודת אמצע.' },
+        { id: 'm3_5', topic: 'טריגונומטריה', title: 'יחסים במשולש ישר זווית + פיתגורס',
+          f: `sin(α) = ${frac('מול', 'יתר')} ,&nbsp; cos(α) = ${frac('ליד', 'יתר')} ,&nbsp; tan(α) = ${frac('מול', 'ליד')}`, plain: 'sin = מול/יתר, cos = ליד/יתר',
+          desc: 'מציאת צלעות וזוויות במשולש ישר זווית. זכרו גם: a² + b² = c².',
+          vars: '<b>c</b> היתר. ודאו שהמחשבון על מצב <b>DEG</b>!' },
+        { id: 'm3_6', topic: 'סדרות', title: 'סדרה חשבונית (איבר כללי וסכום)',
+          f: `a<sub>n</sub> = a₁ + (n − 1)d &nbsp;|&nbsp; S<sub>n</sub> = ${frac('n(a₁ + a<sub>n</sub>)', '2')}`, plain: 'an = a1 + (n-1)d | Sn = n(a1 + an)/2',
+          desc: 'סדרה שבה ההפרש בין כל שני איברים עוקבים הוא קבוע.',
+          vars: '<b>a₁</b> איבר ראשון, <b>d</b> הפרש הסדרה, <b>n</b> מספר האיברים.' },
+        { id: 'm3_7', topic: 'גדילה ודעיכה', title: 'גידול ודעיכה מעריכית',
+          f: `M(t) = M₀ · q<sup>t</sup>`, plain: 'M(t) = M0 * q^t',
+          desc: 'חישוב ריבית, התרבות חיידקים או דעיכת חומר לאורך זמן.',
+          vars: '<b>M₀</b> כמות התחלתית, <b>t</b> זמן, <b>q = 1 ± p/100</b>.' }
+      ]
+    },
+    {
+      id: 'math_4', cat: 'math', icon: '📈', title: 'מתמטיקה – 4 יח״ל',
+      desc: 'חדו״א (נגזרות ואינטגרלים), טריגונומטריה לכל משולש, וסדרה הנדסית.',
+      items: [
+        { id: 'm4_1', topic: 'חדו״א – נגזרות', title: 'כללי גזירה + מכפלה ומנה',
+          f: `(x<sup>n</sup>)′ = n·x<sup>n−1</sup> &nbsp;|&nbsp; (u·v)′ = u′v + uv′ &nbsp;|&nbsp; (${frac('u', 'v')})′ = ${frac('u′v − uv′', 'v²')}`, plain: '(x^n)\' = n*x^(n-1)',
+          desc: 'הנגזרת נותנת את שיפוע המשיק בנקודה. השוואה ל-0 מוצאת נקודות קיצון.',
+          vars: '<b>(√x)′ = 1/(2√x)</b> – נוסחה שחוזרת המון בבגרות!' },
+        { id: 'm4_2', topic: 'חדו״א – אינטגרלים', title: 'אינטגרל ושטח בין פונקציות',
+          f: `∫ x<sup>n</sup> dx = ${frac('x<sup>n+1</sup>', 'n + 1')} + C &nbsp;|&nbsp; S = ∫<sub>a</sub><sup>b</sup> (f<sub>עליון</sub> − f<sub>תחתון</sub>) dx`, plain: '∫ x^n dx = x^(n+1)/(n+1) + C',
+          desc: 'חישוב שטחים מתחת לגרף או בין שני גרפים.',
+          vars: '<b>a, b</b> גבולות השטח (נקודות החיתוך בציר X).' },
+        { id: 'm4_3', topic: 'טריגונומטריה', title: 'משפט הסינוסים ומשפט הקוסינוסים',
+          f: `${frac('a', 'sin α')} = ${frac('b', 'sin β')} = 2R &nbsp;|&nbsp; c² = a² + b² − 2ab·cos(γ)`, plain: 'a/sin(α) = b/sin(β) = 2R',
+          desc: 'פתרון כל משולש (לא רק ישר זווית!). קוסינוסים – כשיש 3 צלעות או 2 צלעות וזווית ביניהן.',
+          vars: '<b>R</b> רדיוס המעגל החוסם, <b>γ</b> הזווית שמול הצלע c.' },
+        { id: 'm4_4', topic: 'טריגונומטריה', title: 'זהויות חובה ושטח משולש',
+          f: `sin²α + cos²α = 1 &nbsp;|&nbsp; sin(2α) = 2sinα·cosα &nbsp;|&nbsp; S = ½ab·sin(γ)`, plain: 'sin²α + cos²α = 1 | S = 0.5*a*b*sin(γ)',
+          desc: 'הזהות הפיתגורית להמרה בין סינוס לקוסינוס, ונוסחת שטח מהירה לכל משולש.',
+          vars: '<b>a, b</b> שתי צלעות, <b>γ</b> הזווית הכלואה ביניהן.' },
+        { id: 'm4_5', topic: 'סדרות', title: 'סדרה הנדסית (איבר כללי וסכום)',
+          f: `a<sub>n</sub> = a₁ · q<sup>n−1</sup> &nbsp;|&nbsp; S<sub>n</sub> = ${frac('a₁(q<sup>n</sup> − 1)', 'q − 1')}`, plain: 'an = a1 * q^(n-1)',
+          desc: 'סדרה שבה המנה בין כל איבר לקודמו קבועה.',
+          vars: '<b>q</b> מנת הסדרה (q ≠ 1). לאינסופית מתכנסת (|q|<1): <b>S = a₁ / (1 − q)</b>.' }
+      ]
+    },
+    {
+      id: 'math_5', cat: 'math', icon: '∫', title: 'מתמטיקה – 5 יח״ל',
+      desc: 'פונקציות מעריכיות ולוגריתמיות (e ו-ln), נגזרת מורכבת, וקטורים ומרוכבים.',
+      items: [
+        { id: 'm5_1', topic: 'פונקציות e ו-ln', title: 'נגזרות ואינטגרלים של eˣ ו-ln(x)',
+          f: `(e<sup>u</sup>)′ = e<sup>u</sup> · u′ &nbsp;|&nbsp; (ln u)′ = ${frac('u′', 'u')} &nbsp;|&nbsp; ∫ ${frac('u′', 'u')} dx = ln|u| + C`, plain: '(e^u)\' = e^u * u\' | (ln u)\' = u\'/u',
+          desc: 'הכלים המרכזיים לחקירת פונקציות מעריכיות ולוגריתמיות בשאלון 582.',
+          vars: 'זכרו: <b>ln(e) = 1</b>, <b>ln(1) = 0</b>, ותחום הגדרה של ln(u) הוא <b>u > 0</b>.' },
+        { id: 'm5_2', topic: 'חדו״א מתקדם', title: 'נגזרת פונקציה מורכבת (כלל השרשרת)',
+          f: `[f(g(x))]′ = f′(g(x)) · g′(x)`, plain: '[f(g(x))]\' = f\'(g(x)) * g\'(x)',
+          desc: 'גוזרים מבחוץ פנימה – קודם את הפונקציה החיצונית, ואז כופלים בנגזרת הפנימית.',
+          vars: 'דוגמה: <b>(sin(3x))′ = cos(3x) · 3</b>.' },
+        { id: 'm5_3', topic: 'וקטורים', title: 'מכפלה סקלרית וזווית בין וקטורים',
+          f: `u · v = x₁x₂ + y₁y₂ + z₁z₂ = |u|·|v|·cos(θ)`, plain: 'u·v = x1*x2 + y1*y2 + z1*z2',
+          desc: 'בדיקת ניצבות בין ישרים/מישורים וחישוב זווית במרחב התלת-ממדי.',
+          vars: 'אם <b>u · v = 0</b> הווקטורים מאונכים זה לזה (90°).' },
+        { id: 'm5_4', topic: 'מרוכבים', title: 'הצגה קוטבית ומשפט דה-מואבר',
+          f: `z = r(cos θ + i·sin θ) = r·cis(θ) &nbsp;|&nbsp; z<sup>n</sup> = r<sup>n</sup>·cis(n·θ)`, plain: 'z^n = r^n cis(nθ)',
+          desc: 'העלאה בחזקה והוצאת שורשים ממספרים מרוכבים בקלות.',
+          vars: '<b>r = √(a² + b²)</b> מודול, <b>tan(θ) = b/a</b> ארגומנט.' }
+      ]
+    },
+    {
+      id: 'math_uni', cat: 'math', icon: '🎓', title: 'מתמטיקה – תואר ראשון (הנדסה/מדעים)',
+      desc: 'אינטגרציה בחלקים, טורי טיילור, אלגברה לינארית ומד״ר.',
+      items: [
+        { id: 'mu_1', topic: 'אינפי / חדו״א', title: 'אינטגרציה בחלקים',
+          f: `∫ u · v′ dx = u · v − ∫ u′ · v dx`, plain: '∫ u v\' dx = u*v - ∫ u\' v dx',
+          desc: 'חישוב אינטגרל של מכפלת פונקציות (למשל x·eˣ או x·sin(x)).',
+          vars: 'בוחרים כ-<b>u</b> את הפונקציה שנהיית פשוטה יותר כשגוזרים אותה (פולינום או ln).' },
+        { id: 'mu_2', topic: 'אינפי / חדו״א', title: 'טור טיילור / מקלורן לקירוב פונקציות',
+          f: `f(x) ≈ f(0) + f′(0)x + ${frac('f″(0)', '2!')}x² + ${frac('f‴(0)', '3!')}x³`, plain: 'f(x) ≈ f(0) + f\'(0)x + f\'\'(0)x²/2!',
+          desc: 'הפיכת פונקציות לפולינום. קריטי בפיזיקה והנדסה לקירוב זוויות קטנות!',
+          vars: 'סביב 0: <b>sin(x) ≈ x</b>, <b>cos(x) ≈ 1 − x²/2</b>, <b>eˣ ≈ 1 + x</b>.' },
+        { id: 'mu_3', topic: 'אלגברה לינארית', title: 'דטרמיננטה 2×2 וערכים עצמיים',
+          f: `det(A) = ad − bc &nbsp;|&nbsp; det(A − λI) = 0`, plain: 'det(A) = ad - bc | det(A - λI) = 0',
+          desc: 'מציאת ערכים עצמיים (λ) ווקטורים עצמיים – הבסיס לניתוח תנודות ויציבות מערכות.',
+          vars: 'מטריצה הפיכה אם ורק אם <b>det(A) ≠ 0</b>.' },
+        { id: 'mu_4', topic: 'מד״ר', title: 'מד״ר לינארית מסדר ראשון (גורם אינטגרציה)',
+          f: `y′ + P(x)y = Q(x) &nbsp;⇒&nbsp; μ(x) = e<sup>∫ P(x)dx</sup>`, plain: 'μ(x) = e^(∫ P(x)dx)',
+          desc: 'פתרון משוואות של מעגלי RC/RL, נפילה עם גרר ותהליכי ערבוב.',
+          vars: 'כופלים ב-<b>μ(x)</b> ומקבלים: <b>(μ·y)′ = μ·Q(x)</b>.' },
+        { id: 'mu_5', topic: 'חדו״א וקטורי', title: 'גרדיאנט, דיברגנץ ורוטור (∇)',
+          f: `∇f = (${frac('∂f', '∂x')}, ${frac('∂f', '∂y')}, ${frac('∂f', '∂z')}) &nbsp;|&nbsp; div F = ∇·F ,&nbsp; curl F = ∇×F`, plain: '∇f = (∂f/∂x, ∂f/∂y, ∂f/∂z)',
+          desc: 'השפה של משוואות מקסוול וזרימת נוזלים/אוויר.',
+          vars: '<b>∇f</b> כיוון העלייה התלולה ביותר; <b>div</b> מקורות/בורות; <b>curl</b> ערבוליות.' }
+      ]
+    },
+    {
+      id: 'phys_hs', cat: 'phys', icon: '⚡', title: 'פיזיקה – תיכון (5 יח״ל)',
+      desc: 'מכניקה ניוטונית, אנרגיה ותנע, תנועה מעגלית, חשמל ומגנטיות.',
+      items: [
+        { id: 'ph_1', topic: 'קינמטיקה', title: 'משוואות תנועה בתאוצה קבועה',
+          f: `v = v₀ + a·t &nbsp;|&nbsp; x = x₀ + v₀t + ½at² &nbsp;|&nbsp; v² = v₀² + 2aΔx`, plain: 'v = v0 + at | x = x0 + v0*t + 0.5*a*t²',
+          desc: 'תיאור תנועה בקו ישר ובזריקה בליסטית (בציר Y: a = −g ≈ −10 m/s²).',
+          vars: '<b>x</b> מיקום [m], <b>v</b> מהירות [m/s], <b>a</b> תאוצה [m/s²], <b>t</b> זמן [s].' },
+        { id: 'ph_2', topic: 'דינמיקה', title: 'החוק השני של ניוטון וחיכוך',
+          f: `ΣF = m · a &nbsp;|&nbsp; f<sub>k</sub> = μ<sub>k</sub> · N &nbsp;|&nbsp; f<sub>s,max</sub> = μ<sub>s</sub> · N`, plain: 'ΣF = m * a | fk = μk * N',
+          desc: 'שקול הכוחות קובע את התאוצה. כוח החיכוך תלוי בכוח הנורמלי N ולא בשטח המגע.',
+          vars: '<b>F</b> כוח [N], <b>m</b> מסה [kg], <b>N</b> כוח נורמלי [N], <b>μ</b> מקדם חיכוך.' },
+        { id: 'ph_3', topic: 'אנרגיה ותנע', title: 'אנרגיה קינטית, פוטנציאלית ושימור תנע',
+          f: `E<sub>k</sub> = ½mv² &nbsp;|&nbsp; U<sub>g</sub> = mgh &nbsp;|&nbsp; U<sub>sp</sub> = ½kx² &nbsp;|&nbsp; p = m·v`, plain: 'Ek = 0.5*m*v² | Ug = mgh | p = m*v',
+          desc: 'בהיעדר חיכוך האנרגיה נשמרת. בהתנגשויות – התנע הכולל תמיד נשמר!',
+          vars: '<b>k</b> קבוע קפיץ [N/m], <b>p</b> תנע [kg·m/s]. מתקף: <b>J = F·Δt = Δp</b>.' },
+        { id: 'ph_4', topic: 'תנועה מעגלית וכבידה', title: 'תאוצה צנטריפטלית וכבידה עולמית',
+          f: `a<sub>R</sub> = ${frac('v²', 'R')} = ω²R &nbsp;|&nbsp; F<sub>G</sub> = ${frac('G·M·m', 'r²')}`, plain: 'aR = v²/R = ω²R | FG = G*M*m / r²',
+          desc: 'תנועה במעגל דורשת כוח מכוון למרכז. לוויין במסלול: משווים F_G לכוח הצנטריפטלי.',
+          vars: '<b>ω = 2πf</b> מהירות זוויתית [rad/s], <b>G = 6.67×10⁻¹¹</b> קבוע הכבידה.' },
+        { id: 'ph_5', topic: 'חשמל ומעגלים', title: 'חוק קולון, חוק אוהם והספק חשמלי',
+          f: `F = ${frac('k·|q₁q₂|', 'r²')} &nbsp;|&nbsp; V = I·R &nbsp;|&nbsp; P = V·I = I²R = ${frac('V²', 'R')}`, plain: 'F = k*q1*q2/r² | V = I*R | P = V*I',
+          desc: 'הנוסחאות הבסיסיות לאלקטרוסטטיקה ולפתרון מעגלי זרם ישר (DC).',
+          vars: '<b>V</b> מתח [V], <b>I</b> זרם [A], <b>R</b> התנגדות [Ω], <b>P</b> הספק [W].' },
+        { id: 'ph_6', topic: 'מגנטיות', title: 'כוח לורנץ על מטען ועל תיל נושא זרם',
+          f: `F = q·v·B·sin(α) &nbsp;|&nbsp; F = I·L·B·sin(α)`, plain: 'F = q*v*B*sin(α) | F = I*L*B*sin(α)',
+          desc: 'כוח מגנטי פועל רק על מטען נע (ובמאונך למהירות ולשדה – כלל יד ימין).',
+          vars: '<b>B</b> שדה מגנטי [Tesla], <b>q</b> מטען [C], <b>L</b> אורך התיל [m].' }
+      ]
+    },
+    {
+      id: 'phys_uni', cat: 'phys', icon: '🌌', title: 'פיזיקה – תואר ראשון',
+      desc: 'מכניקה קשיחה, תרמודינמיקה, משוואות מקסוול ויחסות פרטית.',
+      items: [
+        { id: 'pu_1', topic: 'מכניקה קשיחה', title: 'מומנט כוח, מומנט התמד ותנע זוויתי',
+          f: `τ = r × F = I · α &nbsp;|&nbsp; L = I · ω &nbsp;|&nbsp; E<sub>rot</sub> = ½Iω²`, plain: 'τ = I*α | L = I*ω | E_rot = 0.5*I*ω²',
+          desc: 'האנלוגיה הסיבובית לחוקי ניוטון. מומנט ההתמד I מחליף את המסה m.',
+          vars: '<b>τ</b> מומנט [N·m], <b>I = Σmᵢrᵢ²</b> מומנט התמד [kg·m²], <b>L</b> תנע זוויתי.' },
+        { id: 'pu_2', topic: 'תרמודינמיקה', title: 'חוק הגז האידיאלי והחוק הראשון',
+          f: `P·V = n·R·T = N·k<sub>B</sub>·T &nbsp;|&nbsp; ΔU = Q − W`, plain: 'PV = nRT | ΔU = Q - W',
+          desc: 'קשר בין לחץ, נפח וטמפרטורה, ושימור אנרגיה תרמית.',
+          vars: '<b>T</b> בקלווין [K = °C + 273.15], <b>R = 8.314</b> J/(mol·K).' },
+        { id: 'pu_3', topic: 'אלקטרומגנטיות', title: 'חוק גאוס וחוק פאראדיי (מקסוול)',
+          f: `∮ E · dA = ${frac('Q<sub>in</sub>', 'ε₀')} &nbsp;|&nbsp; ε = −${frac('dΦ<sub>B</sub>', 'dt')}`, plain: '∮ E·dA = Q_in / ε0 | ε = -dΦB/dt',
+          desc: 'חישוב שדות מסימטריה, ויצירת מתח מושרה משינוי בשטף מגנטי.',
+          vars: '<b>Φ<sub>B</sub> = B·A·cos(θ)</b> שטף מגנטי [Weber], <b>ε₀ = 8.85×10⁻¹²</b>.' },
+        { id: 'pu_4', topic: 'יחסות וקוונטים', title: 'פקטור לורנץ, אנרגיית פוטון ודה-ברויי',
+          f: `γ = ${frac('1', '√(1 − v²/c²)')} &nbsp;|&nbsp; E = h·f = ${frac('h·c', 'λ')} &nbsp;|&nbsp; λ = ${frac('h', 'p')}`, plain: 'γ = 1/√(1 - v²/c²) | E = hf | λ = h/p',
+          desc: 'התארכות זמן והתקצרות אורך במהירויות קרובות לאור, ודואליות גל-חלקיק.',
+          vars: '<b>c = 3×10⁸ m/s</b> מהירות האור, <b>h = 6.626×10⁻³⁴ J·s</b> קבוע פלאנק.' }
+      ]
+    },
+    {
+      id: 'aero_basic', cat: 'aero', icon: '✈️', title: 'אווירונאוטיקה – יסודות וטיסה',
+      desc: '4 כוחות הטיסה, משוואת ברנולי, לחץ דינמי, עילוי, גרר ויחס גלישה.',
+      items: [
+        { id: 'ae_1', topic: 'זרימה ולחץ', title: 'משוואת ברנולי ולחץ דינמי (q)',
+          f: `P + ½ρv² + ρgh = const &nbsp;|&nbsp; q = ½ρv²`, plain: 'P + 0.5*ρ*v² + ρgh = const | q = 0.5*ρ*v²',
+          desc: 'ככל שמהירות האוויר עולה, הלחץ הסטטי יורד. הלחץ הדינמי q הוא הבסיס לכל הכוחות האווירודינמיים!',
+          vars: '<b>P</b> לחץ סטטי [Pa], <b>ρ</b> צפיפות אוויר (בגובה פני הים ≈ <b>1.225 kg/m³</b>), <b>v</b> מהירות [m/s].' },
+        { id: 'ae_2', topic: 'כוחות אווירודינמיים', title: 'נוסחת העילוי (Lift) והגרר (Drag)',
+          f: `L = ½ρv² · S · C<sub>L</sub> &nbsp;|&nbsp; D = ½ρv² · S · C<sub>D</sub>`, plain: 'L = 0.5 * ρ * v² * S * CL | D = 0.5 * ρ * v² * S * CD',
+          desc: 'הנוסחאות החשובות ביותר בתעופה! בטיסה ישרה ואופקית: L = W (עילוי שווה למשקל) ו-T = D (דחף שווה לגרר).',
+          vars: '<b>S</b> שטח כנף [m²], <b>C<sub>L</sub></b> מקדם עילוי (תלוי בזווית ההתקפה α), <b>C<sub>D</sub></b> מקדם גרר.' },
+        { id: 'ae_3', topic: 'ביצועי כנף', title: 'גרר פולארי ויעילות אווירודינמית (L/D)',
+          f: `C<sub>D</sub> = C<sub>D0</sub> + ${frac('C<sub>L</sub>²', 'π · AR · e')} &nbsp;|&nbsp; AR = ${frac('b²', 'S')}`, plain: 'CD = CD0 + CL² / (π * AR * e) | AR = b² / S',
+          desc: 'הגרר מורכב מגרר טפילי (C_D0) ומגרר מושרה (הנוצר מעצם ייצור העילוי). יחס L/D קובע את מרחק הגלישה.',
+          vars: '<b>AR</b> מנת ממדים (Aspect Ratio), <b>b</b> מוטת כנפיים [m], <b>e</b> מקדם אוסוולד (~0.8).' },
+        { id: 'ae_4', topic: 'בטיחות טיסה', title: 'מהירות הזדקרות (Stall Speed)',
+          f: `V<sub>stall</sub> = √(${frac('2 · W', 'ρ · S · C<sub>L,max</sub>')})`, plain: 'V_stall = √(2W / (ρ * S * CL_max))',
+          desc: 'המהירות המינימלית שבה המטוס יכול להחזיק את עצמו באוויר לפני שהזרימה מתנתקת מהכנף.',
+          vars: '<b>W = m·g</b> משקל המטוס [N], <b>C<sub>L,max</sub></b> מקדם עילוי מקסימלי (גדל כשמורידים מדפים).' }
+      ]
+    },
+    {
+      id: 'aero_uni', cat: 'aero', icon: '🚀', title: 'אווירונאוטיקה – תואר ראשון והנעה רקטית',
+      desc: 'אווירודינמיקה דחיסה (מאך וגלי הלם), הנעה סילונית ונוסחת הטילים של ציאולקובסקי.',
+      items: [
+        { id: 'au_1', topic: 'זרימה דחיסה', title: 'מהירות הקול ומספר מאך (Mach)',
+          f: `a = √(γ · R · T) &nbsp;|&nbsp; M = ${frac('v', 'a')}`, plain: 'a = √(γ * R * T) | M = v / a',
+          desc: 'מהירות הקול תלויה אך ורק בטמפרטורת האוויר! בגובה רב קר יותר ולכן מהירות הקול נמוכה יותר.',
+          vars: 'לאוויר: <b>γ = 1.4</b>, <b>R = 287 J/(kg·K)</b>, <b>T</b> בקלווין. <b>M > 1</b> = על-קולי.' },
+        { id: 'au_2', topic: 'הנעה רקטית', title: 'נוסחת הטילים של ציאולקובסקי (Δv)',
+          f: `Δv = I<sub>sp</sub> · g₀ · ln(${frac('m₀', 'm<sub>f</sub>')}) = v<sub>e</sub> · ln(${frac('m₀', 'm<sub>f</sub>')})`, plain: 'Δv = Isp * g0 * ln(m0 / mf)',
+          desc: 'הנוסחה המרכזית בהנדסת חלל וטילים: כמה שינוי מהירות (Δv) הטיל יכול להשיג לפי כמות הדלק.',
+          vars: '<b>I<sub>sp</sub></b> מתקף סגולי [s], <b>g₀ = 9.81 m/s²</b>, <b>m₀</b> מסה התחלתית (עם דלק), <b>m<sub>f</sub></b> מסה סופית (יבשה).' },
+        { id: 'au_3', topic: 'מנועי סילון ורקטות', title: 'משוואת הדחף הכללית (Thrust)',
+          f: `T = ṁ · (v<sub>e</sub> − v₀) + (P<sub>e</sub> − P₀) · A<sub>e</sub>`, plain: 'T = m_dot * (ve - v0) + (Pe - P0) * Ae',
+          desc: 'הדחף נוצר מתאוצת מסת האוויר/גזים החוצה, בתוספת הפרש הלחצים ביציאה מהנחיר.',
+          vars: '<b>ṁ</b> ספיקה מסית [kg/s], <b>v<sub>e</sub></b> מהירות פליטה, <b>v₀</b> מהירות טיסה (0 ברקטה), <b>A<sub>e</sub></b> שטח יציאת הנחיר.' },
+        { id: 'au_4', topic: 'זרימה בנחירים', title: 'קשר שטח-מהירות (נחיר מתכנס-מתבדר)',
+          f: `${frac('dA', 'A')} = (M² − 1) ${frac('dv', 'v')}`, plain: 'dA/A = (M² - 1) * dv/v',
+          desc: 'מסביר למה כדי להאיץ זרימה תת-קולית (M<1) מצרים את הצינור, אבל בזרימה על-קולית (M>1) חייבים להרחיב אותו (נחיר דה-לאוואל)!',
+          vars: 'בצוואר הנחיר (הנקודה הכי צרה) מתקבל <b>M = 1</b> (זרימה חנוקה).' },
+        { id: 'au_5', topic: 'ביצועי טיסה (ברגה)', title: 'נוסחת טווח ברגה (Breguet Range)',
+          f: `R = ${frac('v', 'TSFC')} · ${frac('C<sub>L</sub>', 'C<sub>D</sub>')} · ln(${frac('W<sub>initial</sub>', 'W<sub>final</sub>')})`, plain: 'R = (v / TSFC) * (CL / CD) * ln(W_init / W_final)',
+          desc: 'חישוב טווח הטיסה המקסימלי של מטוס סילון תוך התחשבות בירידת המשקל ככל שהדלק נשרף.',
+          vars: '<b>TSFC</b> צריכת דלק סגולית לדחף, <b>W<sub>initial</sub> / W<sub>final</sub></b> יחס משקל בהמראה לנחיתה.' }
+      ]
+    }
+  ];
+  const CATEGORIES = [
+    { id: 'math', title: 'מתמטיקה – 3, 4, 5 יח״ל ותואר ראשון', icon: '📐', color: '#4cc9f0' },
+    { id: 'phys', title: 'פיזיקה – תיכון ותואר ראשון', icon: '⚡', color: '#9b5de5' },
+    { id: 'aero', title: 'אווירונאוטיקה והנדסת חלל', icon: '✈️', color: '#ff9f1c' },
+  ];
+
+  const MASCOT_LINES = [
+    'שלום! אני ניוטון 🚀 ריכזתי לך כאן רק את הנוסחאות שבאמת משתמשים בהן – בלי מריחות ובעברית ברורה.',
+    'טיפ של אלופים: לחץ על הכוכב ⭐ בכל נוסחה כדי לשמור אותה לרשימת המועדפים שלך למבחן!',
+    'מחפש נוסחה ספציפית? הקלד למעלה בשורת החיפוש (למשל: "ברנולי", "נגזרת", "מאך" או "תנע").',
+    'בפיזיקה ואווירונאוטיקה – תמיד בדוק יחידות SI לפני הצבה (מטר, קילוגרם, שנייה, קלווין)!',
+    'זכור: 1 אטמוספירה ≈ 101,325 פסקל, וצפיפות אוויר בגובה פני הים היא 1.225 ק״ג למ״ק ✈️'
+  ];
+
+  const App = {
+    root: null,
+    favs: new Set(JSON.parse(localStorage.getItem('form_favs') || '[]')),
+
+    start() {
+      this.root = document.getElementById('app');
+      FX.init();
+      const mute = document.getElementById('muteBtn');
+      const paintMute = () => { mute.textContent = Sound.muted ? '🔇' : '🔊'; };
+      paintMute();
+      mute.onclick = () => { Sound.setMuted(!Sound.muted); paintMute(); Sound.click(); };
+      document.getElementById('homeBtn').onclick = () => { Sound.click(); this.hub(); };
+      document.getElementById('favFilterBtn').onclick = () => { Sound.click(); this.showFavorites(); };
+      document.addEventListener('pointerdown', () => Sound.init(), { once: true });
+      this.updateStarCount();
+      this.hub();
+    },
+
+    updateStarCount() { document.getElementById('starTotal').textContent = this.favs.size; },
+
+    toggleFav(id, btnEl) {
+      if (this.favs.has(id)) {
+        this.favs.delete(id); Sound.unstar(); FX.toast('הוסר מהמועדפים');
+      } else {
+        this.favs.add(id); Sound.star(); FX.burstAt(btnEl); FX.toast('⭐ נשמר במועדפים למבחן!', 'good');
+      }
+      localStorage.setItem('form_favs', JSON.stringify([...this.favs]));
+      this.updateStarCount();
+      if (btnEl) {
+        const on = this.favs.has(id);
+        btnEl.classList.toggle('on', on);
+        btnEl.textContent = on ? '⭐ שמור' : '☆ שמור';
+      }
+    },
+
+    allItems() {
+      const out = [];
+      for (const sec of DATA) {
+        const cat = CATEGORIES.find(c => c.id === sec.cat);
+        for (const it of sec.items) out.push({ ...it, secTitle: sec.title, color: cat.color });
+      }
+      return out;
+    },
+    hub() {
+      window.scrollTo({ top: 0 });
+      const catsHtml = CATEGORIES.map(cat => {
+        const secs = DATA.filter(s => s.cat === cat.id);
+        return `
+          <section class="cat" style="--c:${cat.color}">
+            <h2 class="cat-title"><span>${cat.icon}</span>${cat.title}</h2>
+            <div class="cards">
+              ${secs.map(s => {
+                const favCount = s.items.filter(it => this.favs.has(it.id)).length;
+                return `
+                  <button class="card" data-sec="${s.id}">
+                    <div class="card-icon">${s.icon}</div>
+                    <div class="card-body">
+                      <h3>${s.title}</h3>
+                      <p>${s.desc}</p>
+                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <span class="chip">${s.items.length} נוסחאות</span>
+                        ${favCount ? `<span class="chip" style="border-color:var(--accent); color:var(--accent)">⭐ ${favCount}</span>` : ''}
+                      </div>
+                    </div>
+                  </button>`;
+              }).join('')}
+            </div>
+          </section>`;
+      }).join('');
+
+      this.root.innerHTML = `
+        <div>
+          <div class="hero">
+            <div class="mascot" id="mascot" title="לחץ עליי לטיפ!">🚀</div>
+            <div class="bubble" id="bubble">${MASCOT_LINES[0]}</div>
+          </div>
+          <div class="search-bar">
+            <input type="search" id="globalSearch" placeholder="🔍 חיפוש מהיר בכל הנוסחאות (למשל: ברנולי, נגזרת, כבידה, מאך, שורשים)..." />
+          </div>
+          <div id="hubContent">${catsHtml}</div>
+        </div>`;
+
+      let line = 0;
+      this.root.querySelector('#mascot').onclick = () => {
+        line = (line + 1) % MASCOT_LINES.length;
+        const b = this.root.querySelector('#bubble');
+        b.textContent = MASCOT_LINES[line]; FX.pop(b); Sound.pop();
+      };
+
+      this.root.querySelector('#globalSearch').oninput = (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        const container = this.root.querySelector('#hubContent');
+        if (!q) { container.innerHTML = catsHtml; return; }
+        const matches = this.allItems().filter(it =>
+          it.title.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q) ||
+          it.topic.toLowerCase().includes(q) || it.vars.toLowerCase().includes(q) || it.plain.toLowerCase().includes(q)
+        );
+        if (!matches.length) {
+          container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted); font-size:18px;">לא נמצאו נוסחאות עבור "<b>${q}</b>" 🤔</div>`;
+          return;
+        }
+        container.innerHTML = `<div class="cat-title"><span>🔍</span>נמצאו ${matches.length} נוסחאות</div>
+          <div class="formula-grid">${matches.map(it => this.renderCard(it, it.color, true)).join('')}</div>`;
+      };
+
+      this.root.onclick = (e) => {
+        const card = e.target.closest('[data-sec]');
+        if (card) { Sound.click(); this.openSection(card.dataset.sec); return; }
+        this.handleCardActions(e);
+      };
+    },
+
+    openSection(secId, activeTopic = 'הכל') {
+      window.scrollTo({ top: 0 });
+      const sec = DATA.find(s => s.id === secId);
+      const cat = CATEGORIES.find(c => c.id === sec.cat);
+      const topics = ['הכל', ...new Set(sec.items.map(i => i.topic))];
+      const filtered = activeTopic === 'הכל' ? sec.items : sec.items.filter(i => i.topic === activeTopic);
+
+      this.root.innerHTML = `
+        <div style="--c:${cat.color}">
+          <div class="game-head">
+            <button class="btn small secondary" data-act="hub">→ לכל הנושאים</button>
+            <div class="game-title"><span class="gicon">${sec.icon}</span>${sec.title}</div>
+            <div class="chip">${filtered.length} נוסחאות</div>
+          </div>
+          <div class="topic-tabs">${topics.map(t => `<button class="tab-btn ${t === activeTopic ? 'active' : ''}" data-topic="${t}">${t}</button>`).join('')}</div>
+          <div class="formula-grid">${filtered.map(it => this.renderCard(it, cat.color, false)).join('')}</div>
+        </div>`;
+
+      this.root.onclick = (e) => {
+        if (e.target.closest('[data-act="hub"]')) { Sound.click(); this.hub(); return; }
+        const tab = e.target.closest('[data-topic]');
+        if (tab) { Sound.click(); this.openSection(secId, tab.dataset.topic); return; }
+        this.handleCardActions(e);
+      };
+    },
+
+    showFavorites() {
+      window.scrollTo({ top: 0 });
+      const favItems = this.allItems().filter(it => this.favs.has(it.id));
+      this.root.innerHTML = `
+        <div>
+          <div class="game-head">
+            <button class="btn small secondary" data-act="hub">→ חזרה לתפריט</button>
+            <div class="game-title"><span class="gicon">⭐</span>דף הנוסחאות האישי שלי למבחן</div>
+            <div class="chip">${favItems.length} שמורות</div>
+          </div>
+          ${favItems.length === 0
+            ? `<div style="text-align:center; padding:50px 20px; background:var(--card); border-radius:var(--radius); border:1px solid var(--line);">
+                 <div style="font-size:54px; margin-bottom:10px;">⭐</div><h3>עדיין לא שמרת נוסחאות</h3>
+                 <p style="color:var(--muted);">היכנס לכל אחד מהנושאים ולחץ על כפתור "☆ שמור" כדי לבנות לעצמך דף נוסחאות מרוכז למבחן!</p>
+               </div>`
+            : `<div class="formula-grid">${favItems.map(it => this.renderCard(it, it.color, true)).join('')}</div>`}
+        </div>`;
+      this.root.onclick = (e) => { if (e.target.closest('[data-act="hub"]')) { Sound.click(); this.hub(); return; } this.handleCardActions(e); };
+    },
+
+    renderCard(it, color, showSec) {
+      const isFav = this.favs.has(it.id);
+      return `
+        <div class="f-card" style="--c:${color}">
+          <div>
+            <div class="f-head"><div class="f-title">${it.title}</div><span class="f-tag">${showSec ? it.secTitle : it.topic}</span></div>
+            <div class="f-box">${it.f}</div>
+            <div class="f-desc">${it.desc}</div>
+          </div>
+          <div>
+            <div class="f-vars">${it.vars}</div>
+            <div class="f-foot">
+              <button class="star-btn ${isFav ? 'on' : ''}" data-fav="${it.id}">${isFav ? '⭐ שמור' : '☆ שמור'}</button>
+              <button class="copy-btn" data-copy="${it.plain.replace(/"/g, '&quot;')}">📋 העתק</button>
+            </div>
+          </div>
+        </div>`;
+    },
+
+    handleCardActions(e) {
+      const favBtn = e.target.closest('[data-fav]');
+      if (favBtn) { this.toggleFav(favBtn.dataset.fav, favBtn); return; }
+      const copyBtn = e.target.closest('[data-copy]');
+      if (copyBtn) { navigator.clipboard?.writeText(copyBtn.dataset.copy); Sound.pop(); FX.toast('📋 הנוסחה הועתקה ללוח!', 'good'); }
+    }
+  };
+  App.start();
+  </script>
+</body>
+</html>
